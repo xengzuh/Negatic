@@ -1,0 +1,15 @@
+{
+  "name": "@negatic/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Run create-next-app inside this folder to scaffold the dashboard.' && exit 1",
+    "build": "echo 'no-op until Next.js is scaffolded' && exit 0",
+    "typecheck": "echo 'no-op until Next.js is scaffolded' && exit 0"
+  },
+  "dependencies": {
+    "@negatic/shared-schemas": "workspace:*",
+    "@negatic/config": "workspace:*"
+  }
+}

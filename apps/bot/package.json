@@ -1,0 +1,19 @@
+{
+  "name": "@negatic/bot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "echo 'Bot not implemented yet — see README.' && exit 1",
+    "build": "echo 'no-op until bot is implemented' && exit 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@negatic/shared-schemas": "workspace:*",
+    "@negatic/config": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

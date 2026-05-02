@@ -1,0 +1,27 @@
+{
+  "name": "negatic",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agent-native F&B procurement infrastructure for the Malaysian market.",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "build": "pnpm -r --if-present run build",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "lint": "pnpm -r --if-present run lint",
+    "test": "pnpm -r --if-present run test",
+    "openapi:lint": "redocly lint api-spec/openapi.yaml",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff",
+    "db:push": "supabase db push"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.25.0",
+    "supabase": "^1.200.0",
+    "typescript": "^5.6.0"
+  }
+}

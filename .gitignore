@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Claude Code per-user state (project-shared settings.json is fine to commit)
+.claude/settings.local.json
+.claude/projects/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
