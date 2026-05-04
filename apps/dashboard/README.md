@@ -1,23 +1,34 @@
-# @negatic/dashboard
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Supplier dashboard. Next.js 14 (App Router) + TypeScript + Tailwind.
+## Getting Started
 
-> **Not scaffolded yet.** This folder holds the workspace package shell and
-> README only. To scaffold:
->
-> ```bash
-> cd apps/dashboard
-> pnpm dlx create-next-app@latest . --ts --tailwind --app --eslint --src-dir --import-alias "@/*"
-> ```
->
-> Then re-add the workspace dependencies on `@negatic/shared-schemas` and
-> `@negatic/config` to the generated `package.json`.
+First, run the development server:
 
-## What it does (planned)
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- Supplier login (Supabase Auth).
-- Catalog management (CRUD on `products` + `inventory`).
-- Order inbox: see new orders, confirm/cancel, mark fulfilled.
-- Webhook URL settings.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-It calls the same `/v1/*` endpoints any external agent would. No private API.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

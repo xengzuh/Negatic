@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Native packages whose build scripts we don't auto-run (created by
+# create-next-app — sharp is image opt, unrs-resolver is for ESLint resolver).
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

@@ -9,10 +9,14 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "generate": "echo 'TODO: generate from ../../api-spec/openapi.yaml' && exit 0",
+    "generate": "openapi-typescript ../../api-spec/openapi.yaml -o src/schema.ts",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "openapi-fetch": "^0.13.0"
+  },
   "devDependencies": {
+    "openapi-typescript": "^7.4.0",
     "typescript": "^5.6.0"
   }
 }

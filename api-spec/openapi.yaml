@@ -14,8 +14,6 @@ info:
   contact:
     name: Negatic
     url: https://negatic.dev
-  license:
-    name: Proprietary
 
 servers:
   - url: https://api.negatic.dev/v1
@@ -225,11 +223,11 @@ components:
         supplier_id: { type: string, format: uuid }
         sku: { type: string }
         name: { type: string }
-        name_ms: { type: string, nullable: true }
+        name_ms: { type: [string, "null"] }
         category: { type: string }
         unit: { $ref: '#/components/schemas/Unit' }
         halal_certified: { type: boolean }
-        description: { type: string, nullable: true }
+        description: { type: [string, "null"] }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
 
@@ -253,7 +251,7 @@ components:
         data:
           type: array
           items: { $ref: '#/components/schemas/Product' }
-        next_cursor: { type: string, nullable: true }
+        next_cursor: { type: [string, "null"] }
 
     OrderItem:
       type: object
@@ -290,7 +288,7 @@ components:
         supplier_id: { type: string, format: uuid }
         status: { $ref: '#/components/schemas/OrderStatus' }
         delivery_date: { type: string, format: date }
-        delivery_window: { type: string, nullable: true }
+        delivery_window: { type: [string, "null"] }
         total_amount_cents: { type: integer }
         items:
           type: array
@@ -318,4 +316,4 @@ components:
         data:
           type: array
           items: { $ref: '#/components/schemas/Order' }
-        next_cursor: { type: string, nullable: true }
+        next_cursor: { type: [string, "null"] }
