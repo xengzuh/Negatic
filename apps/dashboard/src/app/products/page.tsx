@@ -3,22 +3,6 @@ import { createSupabaseClient } from '@/lib/supabase';
 // Catalog must reflect supplier edits immediately. Don't prerender.
 export const dynamic = 'force-dynamic';
 
-// Shape we read in this page. We hand-type because supabase-js types
-// aren't generated yet — when we add `supabase gen types typescript`,
-// these inline types go away.
-type ProductRow = {
-  id: string;
-  sku: string;
-  name: string;
-  name_ms: string | null;
-  unit: 'kg' | 'pcs' | 'liter';
-  halal_certified: boolean;
-  inventory: {
-    available_quantity: number;
-    price_per_unit_cents: number;
-  } | null;
-};
-
 export default async function ProductsPage() {
   const supabase = createSupabaseClient();
 
@@ -28,8 +12,7 @@ export default async function ProductsPage() {
       'id, sku, name, name_ms, unit, halal_certified, inventory(available_quantity, price_per_unit_cents)',
     )
     .is('deleted_at', null)
-    .order('sku', { ascending: true })
-    .returns<ProductRow[]>();
+    .order('sku', { ascending: true });
 
   if (error) {
     return (
@@ -63,37 +46,38 @@ export default async function ProductsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td className="px-4 py-3 font-mono text-xs">{p.sku}</td>
-                <td className="px-4 py-3">
-                  <div>{p.name}</div>
-                  {p.name_ms ? (
-                    <div className="text-xs text-neutral-500">{p.name_ms}</div>
-                  ) : null}
-                </td>
-                <td className="px-4 py-3">{p.unit}</td>
-                <td className="px-4 py-3 text-right font-mono">
-                  {p.inventory
-                    ? formatMyr(p.inventory.price_per_unit_cents)
-                    : '—'}
-                </td>
-                <td className="px-4 py-3 text-right font-mono">
-                  {p.inventory
-                    ? `${p.inventory.available_quantity} ${p.unit}`
-                    : '—'}
-                </td>
-                <td className="px-4 py-3">
-                  {p.halal_certified ? (
-                    <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-900">
-                      certified
-                    </span>
-                  ) : (
-                    <span className="text-xs text-neutral-500">no</span>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {products.map((p) => {
+              // products.inventory is a 1:1 relation but supabase-js types
+              // it as either an array or a single row depending on PK shape.
+              const inv = Array.isArray(p.inventory) ? p.inventory[0] : p.inventory;
+              return (
+                <tr key={p.id}>
+                  <td className="px-4 py-3 font-mono text-xs">{p.sku}</td>
+                  <td className="px-4 py-3">
+                    <div>{p.name}</div>
+                    {p.name_ms ? (
+                      <div className="text-xs text-neutral-500">{p.name_ms}</div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3">{p.unit}</td>
+                  <td className="px-4 py-3 text-right font-mono">
+                    {inv ? formatMyr(inv.price_per_unit_cents) : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono">
+                    {inv ? `${inv.available_quantity} ${p.unit}` : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.halal_certified ? (
+                      <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-900">
+                        certified
+                      </span>
+                    ) : (
+                      <span className="text-xs text-neutral-500">no</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
             {products.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">

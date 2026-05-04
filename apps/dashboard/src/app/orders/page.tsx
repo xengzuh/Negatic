@@ -1,20 +1,13 @@
 import { createSupabaseClient } from '@/lib/supabase';
+import type { Database } from '@/lib/db-types';
 
 // Always render at request time — the order inbox must reflect new orders
 // the moment they're placed, not whatever was in the DB at build time.
 export const dynamic = 'force-dynamic';
 
-type OrderRow = {
-  id: string;
-  status: 'pending' | 'confirmed' | 'fulfilled' | 'cancelled';
-  delivery_date: string;
-  delivery_window: string | null;
-  total_amount_cents: number;
-  created_at: string;
-  restaurants: { name: string } | null;
-};
+type OrderStatus = Database['public']['Enums']['order_status'];
 
-const STATUS_STYLE: Record<OrderRow['status'], string> = {
+const STATUS_STYLE: Record<OrderStatus, string> = {
   pending: 'bg-amber-100 text-amber-900',
   confirmed: 'bg-blue-100 text-blue-900',
   fulfilled: 'bg-green-100 text-green-900',
@@ -31,8 +24,7 @@ export default async function OrdersPage() {
     )
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
-    .limit(50)
-    .returns<OrderRow[]>();
+    .limit(50);
 
   if (error) {
     return (
@@ -68,32 +60,37 @@ export default async function OrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td className="px-4 py-3 font-mono text-xs">
-                    {o.id.slice(0, 8)}
-                  </td>
-                  <td className="px-4 py-3">{o.restaurants?.name ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs ${STATUS_STYLE[o.status]}`}
-                    >
-                      {o.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>{o.delivery_date}</div>
-                    {o.delivery_window ? (
-                      <div className="text-xs text-neutral-500">
-                        {o.delivery_window}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {formatMyr(o.total_amount_cents)}
-                  </td>
-                </tr>
-              ))}
+              {orders.map((o) => {
+                const restaurant = Array.isArray(o.restaurants)
+                  ? o.restaurants[0]
+                  : o.restaurants;
+                return (
+                  <tr key={o.id}>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {o.id.slice(0, 8)}
+                    </td>
+                    <td className="px-4 py-3">{restaurant?.name ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs ${STATUS_STYLE[o.status]}`}
+                      >
+                        {o.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div>{o.delivery_date}</div>
+                      {o.delivery_window ? (
+                        <div className="text-xs text-neutral-500">
+                          {o.delivery_window}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {formatMyr(o.total_amount_cents)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

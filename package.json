@@ -17,7 +17,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:diff": "supabase db diff",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push",
+    "db:gen-types": "supabase gen types typescript --local > apps/dashboard/src/lib/db-types.ts"
   },
   "devDependencies": {
     "@redocly/cli": "^1.25.0",
