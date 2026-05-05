@@ -5,15 +5,24 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "echo 'Bot not implemented yet — see README.' && exit 1",
-    "build": "echo 'no-op until bot is implemented' && exit 0",
-    "typecheck": "tsc --noEmit"
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@negatic/config": "workspace:*",
     "@negatic/shared-schemas": "workspace:*",
-    "@negatic/config": "workspace:*"
+    "dotenv": "^16.4.5",
+    "express": "^5.0.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.0"
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
   }
 }
