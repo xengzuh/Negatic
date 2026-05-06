@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "sync-spec": "node scripts/sync-openapi.cjs",
+    "predev": "pnpm sync-spec",
     "dev": "next dev",
+    "prebuild": "pnpm sync-spec",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

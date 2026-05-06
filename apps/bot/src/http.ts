@@ -55,10 +55,11 @@ export function createServer(deps: ServerDeps): Express {
 
   // ---------------------------------------------------------------------
   // POST /webhook — incoming WhatsApp events.
-  // Validate HMAC, then ack with 200. Meta retries on non-2xx, so we want
-  // to ack quickly and process async. (Async dispatch comes in a follow-up.)
+  // We must finish handling before sending 200, otherwise serverless
+  // platforms (Vercel) tear the function down mid-flight. Meta's timeout
+  // is ~30s, well above what our DB lookup + Graph API call needs.
   // ---------------------------------------------------------------------
-  app.post('/webhook', (req: Request, res: Response) => {
+  app.post('/webhook', async (req: Request, res: Response) => {
     const sig = req.header('x-hub-signature-256');
     const raw = (req as RequestWithRaw).rawBody;
 
@@ -73,20 +74,18 @@ export function createServer(deps: ServerDeps): Express {
       return;
     }
 
-    // Ack Meta first — they retry on non-2xx within ~30s and we don't want
-    // a slow reply to trigger duplicate deliveries. Then dispatch async.
-    res.sendStatus(200);
-
     if (deps.handler) {
-      const handler = deps.handler;
-      void Promise.resolve()
-        .then(() => handleIncoming(req.body, handler))
-        .catch((err: unknown) => {
-          console.error('[webhook] handler failed:', err);
-        });
+      try {
+        await handleIncoming(req.body, deps.handler);
+      } catch (err) {
+        console.error('[webhook] handler failed:', err);
+        // Still ack 200 so Meta doesn't retry the same broken event.
+      }
     } else {
       console.log('[webhook] payload (no handler wired):', JSON.stringify(req.body));
     }
+
+    res.sendStatus(200);
   });
 
   app.get('/healthz', (_req: Request, res: Response) => {

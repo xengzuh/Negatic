@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
-import { createServer } from './server.js';
+import { createServer } from './http.js';
 
 const APP_SECRET = 'test-app-secret-for-vitest';
 const VERIFY_TOKEN = 'test-verify-token-for-vitest';
