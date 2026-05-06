@@ -26,6 +26,9 @@ export default function RootLayout({
             <Link href="/products" className="text-sm hover:underline">
               Products
             </Link>
+            <Link href="/docs" className="text-sm hover:underline">
+              API
+            </Link>
           </nav>
         </header>
         <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
