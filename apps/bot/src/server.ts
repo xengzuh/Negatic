@@ -1,7 +1,6 @@
 import express, { type Express, type Request, type Response } from 'express';
 import { verifySignature } from './crypto.js';
-import { handleIncoming } from './handler.js';
-import type { WhatsAppClient } from './whatsapp.js';
+import { handleIncoming, type HandlerDeps } from './handler.js';
 
 export interface ServerDeps {
   /** Meta App Secret — HMAC key for inbound webhook signatures. */
@@ -9,10 +8,11 @@ export interface ServerDeps {
   /** Random string Meta echoes back in the GET handshake. */
   verifyToken: string;
   /**
-   * Outbound WhatsApp client. Optional so unit tests can omit it; when
-   * absent, signed POSTs are still acked with 200 but no reply is sent.
+   * Full handler bundle (whatsapp + restaurants + sessions + products +
+   * orders). Optional so server unit tests can omit it; when absent,
+   * signed POSTs are still acked with 200 but no reply is sent.
    */
-  whatsapp?: WhatsAppClient;
+  handler?: HandlerDeps;
 }
 
 /**
@@ -77,15 +77,15 @@ export function createServer(deps: ServerDeps): Express {
     // a slow reply to trigger duplicate deliveries. Then dispatch async.
     res.sendStatus(200);
 
-    if (deps.whatsapp) {
-      const whatsapp = deps.whatsapp;
+    if (deps.handler) {
+      const handler = deps.handler;
       void Promise.resolve()
-        .then(() => handleIncoming(req.body, whatsapp))
+        .then(() => handleIncoming(req.body, handler))
         .catch((err: unknown) => {
           console.error('[webhook] handler failed:', err);
         });
     } else {
-      console.log('[webhook] payload (no outbound client):', JSON.stringify(req.body));
+      console.log('[webhook] payload (no handler wired):', JSON.stringify(req.body));
     }
   });
 

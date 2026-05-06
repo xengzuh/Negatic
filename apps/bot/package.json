@@ -13,6 +13,7 @@
   "dependencies": {
     "@negatic/config": "workspace:*",
     "@negatic/shared-schemas": "workspace:*",
+    "@supabase/supabase-js": "^2.45.0",
     "dotenv": "^16.4.5",
     "express": "^5.0.0",
     "zod": "^3.23.0"
