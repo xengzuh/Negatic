@@ -318,6 +318,62 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          claimed_at: string | null
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          response_body: string | null
+          response_code: number | null
+          status: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at: string
+          webhook_id: string
+        }
+        Insert: {
+          attempts?: number
+          claimed_at?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload: Json
+          response_body?: string | null
+          response_code?: number | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at?: string
+          webhook_id: string
+        }
+        Update: {
+          attempts?: number
+          claimed_at?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          response_body?: string | null
+          response_code?: number | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhooks: {
         Row: {
           active: boolean
@@ -373,6 +429,7 @@ export type Database = {
         | "choosing_date"
         | "confirming"
       order_status: "pending" | "confirmed" | "fulfilled" | "cancelled"
+      webhook_delivery_status: "pending" | "sent" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never

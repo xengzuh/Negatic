@@ -19,3 +19,22 @@ export function createSupabaseClient(): SupabaseClient<Database> {
 
   return createClient<Database>(url, anonKey);
 }
+
+// Service-role client — bypasses RLS. Server Components only; never call
+// from client components or expose this key to the browser.
+// Used for tables with no anon policies (webhook_deliveries, webhooks).
+export function createServiceRoleClient(): SupabaseClient<Database> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceKey) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
+        'See apps/dashboard/.env.local.',
+    );
+  }
+
+  return createClient<Database>(url, serviceKey, {
+    auth: { persistSession: false },
+  });
+}
