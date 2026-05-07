@@ -141,6 +141,52 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+webhooks:
+  orderCreated:
+    post:
+      tags: [Webhooks]
+      summary: Order created
+      description: |
+        Sent to every active webhook subscribed to `order.created` on the
+        order's supplier when a new order is placed. The first delivery
+        attempt fires within ~1s of order creation; later attempts (on
+        retry) come from a periodic dispatcher.
+
+        **Verification.** Compute `HMAC-SHA256(secret, raw_request_body)`
+        as a lowercase hex string and compare against the
+        `X-Negatic-Signature` header (which is prefixed with `sha256=`).
+        Reject the request on mismatch.
+
+        **Delivery semantics.** At-least-once. Dedupe on the
+        `X-Negatic-Delivery` header (which equals `id` in the body).
+
+        **Retries.** A non-2xx response triggers exponential backoff
+        (30s, 1m, 5m, 15m, 1h, 6h) up to 6 attempts. 4xx responses are
+        not retried — your endpoint is rejecting our payload, and
+        retrying will not change that. Respond with any 2xx within 10
+        seconds to acknowledge.
+      parameters:
+        - in: header
+          name: X-Negatic-Signature
+          required: true
+          schema: { type: string, example: 'sha256=4f8a...' }
+        - in: header
+          name: X-Negatic-Event
+          required: true
+          schema: { type: string, example: 'order.created' }
+        - in: header
+          name: X-Negatic-Delivery
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderCreatedEvent' }
+      responses:
+        '2XX':
+          description: Acknowledged. Any 2xx is treated as success.
+
 components:
   securitySchemes:
     bearerAuth:
@@ -317,3 +363,28 @@ components:
           type: array
           items: { $ref: '#/components/schemas/Order' }
         next_cursor: { type: [string, "null"] }
+
+    EventType:
+      type: string
+      enum: [order.created]
+
+    OrderCreatedEvent:
+      type: object
+      description: |
+        Envelope sent to supplier-registered webhook URLs when an order is
+        created. The signature in `X-Negatic-Signature` is computed over the
+        full raw request body — including this envelope, not just `data`.
+      required: [id, type, created, data]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique delivery ID. Use for dedupe; matches `X-Negatic-Delivery`.
+        type:
+          $ref: '#/components/schemas/EventType'
+        created:
+          type: string
+          format: date-time
+          description: When the event was enqueued (not when it was delivered).
+        data:
+          $ref: '#/components/schemas/Order'

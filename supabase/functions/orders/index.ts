@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { z } from 'npm:zod@3';
 import { problem } from '../_shared/problem.ts';
+import { dispatchPending } from '../_shared/dispatch.ts';
 
 // ---------------------------------------------------------------------------
 // Request schema — mirrors OpenAPI OrderCreate
@@ -29,6 +30,7 @@ async function hashBody(raw: string): Promise<string> {
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
+
 
 // ---------------------------------------------------------------------------
 // Main handler
@@ -91,7 +93,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
         'Idempotency-Key already used with a different request body.',
       );
     }
-    // Replay the original response — same status, same body
+    // Replay the original response — same status, same body. No dispatcher
+    // trigger: the webhook was already enqueued on the original create.
     return new Response(JSON.stringify(cached.response), {
       status: cached.status_code,
       headers: { 'Content-Type': 'application/json' },
@@ -135,6 +138,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     console.error('[orders] create_order rpc error:', rpcErr);
     return problem(500, 'Internal Server Error', 'Order creation failed.');
+  }
+
+  // Dispatch any pending webhooks inline so the supplier gets the POST within
+  // the order-create lifecycle. pg_cron is the safety net for retries.
+  // Bounded by limit=10: if a backlog exists, cron handles the rest.
+  try {
+    await dispatchPending(supabase, 10);
+  } catch (e) {
+    console.error('[orders] inline dispatch failed (cron will retry):', e);
   }
 
   return new Response(JSON.stringify(order), {
